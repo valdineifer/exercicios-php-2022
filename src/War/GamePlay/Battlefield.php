@@ -54,6 +54,10 @@ class Battlefield implements BattlefieldInterface
             $attackingCountry->conquer($defendingCountry);
         } else if (count($attackingDice) < count($defendingDice)) {
             $defendingCountry->conquer($attackingCountry);
+        } else if ($attackingPoints > $defendingPoints) {
+            $attackingCountry->conquer($defendingCountry);
+        } else if ($attackingPoints < $defendingPoints) {
+            $defendingCountry->conquer($attackingCountry);
         }
     }
 }
