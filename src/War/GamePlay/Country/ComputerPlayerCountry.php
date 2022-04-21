@@ -5,7 +5,8 @@ namespace Galoa\ExerciciosPhp2022\War\GamePlay\Country;
 /**
  * Defines a country that is managed by the Computer.
  */
-class ComputerPlayerCountry extends BaseCountry {
+class ComputerPlayerCountry extends BaseCountry
+{
 
   /**
    * Choose one country to attack, or none.
@@ -18,8 +19,12 @@ class ComputerPlayerCountry extends BaseCountry {
    * @return \Galoa\ExerciciosPhp2022\War\GamePlay\Country\CountryInterface|null
    *   The country that will be attacked, NULL if none will be.
    */
-  public function chooseToAttack(): ?CountryInterface {
-    // @TODO
-  }
+  public function chooseToAttack(): ?CountryInterface
+  {
+    $neighborsCount = count($this->getNeighbors());
 
+    $randomInt = rand(0, $neighborsCount);
+
+    return $neighborsCount != $randomInt ? $this->getNeighbors()[$randomInt] : null;
+  }
 }

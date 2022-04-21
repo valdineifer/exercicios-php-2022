@@ -54,6 +54,13 @@ interface CountryInterface
   public function getNumberOfTroops(): int;
 
   /**
+   * Increase the number of troops at the end of a round and when a country is conquered
+   * 
+   * @param int $quantity The quantity to increase to the number of troops, 1 as default.
+   */
+  public function increaseTroops(int $quantity = 1): void;
+
+  /**
    * Determines whether the player has been conquered.
    *
    * When a country is conquered, its object is not destroyed but it will be
@@ -71,6 +78,19 @@ interface CountryInterface
    * Set a country as conquered;
    */
   public function setAsConquered(): void;
+
+  /**
+   * Replace the conquered country to the winner country
+   * 
+   * @param \Galoa\ExerciciosPhp2022\War\GamePlay\Country\CountryInterface $winnerCountry
+   *   The country that has just won the battle.
+   * @param \Galoa\ExerciciosPhp2022\War\GamePlay\Country\CountryInterface $conqueredCountry
+   *   The country that has just been conquered.
+   */
+  public function setWinnerAsNeighbor(
+    CountryInterface $winnerCountry,
+    CountryInterface $conqueredCountry
+  ): void;
 
   /**
    * Called when, after a battle, the defending country end up with 0 troops.

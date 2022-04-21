@@ -21,6 +21,8 @@ class Battlefield implements BattlefieldInterface
     for ($i = 0; $i < $numTroops; $i++)
       array_push($values, rand(1, 6));
 
+    rsort($values);
+
     return $values;
   }
 
@@ -30,9 +32,6 @@ class Battlefield implements BattlefieldInterface
     CountryInterface $defendingCountry,
     array $defendingDice
   ): void {
-    rsort($attackingDice);
-    rsort($defendingDice);
-
     $attackingPoints = 0;
     $defendingPoints = 0;
 
@@ -43,8 +42,8 @@ class Battlefield implements BattlefieldInterface
         $defendingPoints++;
       }
 
-      unset($attackingDice[0]);
-      unset($defendingDice[0]);
+      array_shift($attackingDice);
+      array_shift($defendingDice);
     }
 
     $attackingCountry->killTroops($defendingPoints);

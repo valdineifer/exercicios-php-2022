@@ -18,7 +18,7 @@ class BaseCountry implements CountryInterface
   /**
    * Array of neigbors
    *
-   * @var string[]
+   * @var BaseCountry[]
    */
   protected $neighbors;
 
@@ -69,7 +69,7 @@ class BaseCountry implements CountryInterface
     return $this->numberOfTroops;
   }
 
-  public function increaseNumberOfTroops(int $quantity = 1): void
+  public function increaseTroops(int $quantity = 1): void
   {
     $this->numberOfTroops += $quantity;
   }
@@ -84,9 +84,26 @@ class BaseCountry implements CountryInterface
     $this->conquered = true;
   }
 
+  public function setWinnerAsNeighbor(
+    CountryInterface $winnerCountry,
+    CountryInterface $conqueredCountry
+  ): void {
+    $index = array_search($conqueredCountry, $this->neighbors);
+
+    $this->neighbors[$index] = $winnerCountry;
+  }
+
   public function conquer(CountryInterface $conqueredCountry): void
   {
-    $this->neighbors += $conqueredCountry->getNeighbors();
+    $neighbors = $conqueredCountry->getNeighbors();
+
+    array_map(function ($neighbor) use ($conqueredCountry) {
+      $neighbor->setWinnerAsNeighbor($this, $conqueredCountry);
+    }, $neighbors);
+
+    $this->neighbors += array_filter($conqueredCountry->getNeighbors(), function ($country) {
+      return $country != $this;
+    });
   }
 
   public function killTroops(int $killedTroops): void
