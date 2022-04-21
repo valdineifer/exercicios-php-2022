@@ -5,7 +5,8 @@ namespace Galoa\ExerciciosPhp2022\War\GamePlay\Country;
 /**
  * Defines a country, that is also a player.
  */
-interface CountryInterface {
+interface CountryInterface
+{
 
   /**
    * Gets the name of a country.
@@ -67,6 +68,11 @@ interface CountryInterface {
   public function isConquered(): bool;
 
   /**
+   * Set a country as conquered;
+   */
+  public function setAsConquered(): void;
+
+  /**
    * Called when, after a battle, the defending country end up with 0 troops.
    *
    * Here, you must register the neighbors of the conquered country as your own.
@@ -83,5 +89,4 @@ interface CountryInterface {
    *   The number of troops killed in battle.
    */
   public function killTroops(int $killedTroops): void;
-
 }
