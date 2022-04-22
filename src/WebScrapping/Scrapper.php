@@ -2,7 +2,14 @@
 
 namespace Galoa\ExerciciosPhp2022\WebScrapping;
 
+/**
+ * The package Box\Spout may generate some PHP Deprecated warnings,
+ *  as related in: https://github.com/box/spout/issues/846
+ * and fixed (but not released) in: https://github.com/box/spout/pull/874
+ */
+
 use Box\Spout\Common\Entity\Row;
+use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
 use Box\Spout\Writer\Common\Creator\Style\StyleBuilder;
 use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
 use DOMDocument;
@@ -14,7 +21,8 @@ use DOMXPath;
  */
 class Scrapper
 {
-
+  const tempDataFilePath = __DIR__ . '/../../webscrapping/temp-data.xlsx';
+  const dataFilePath = __DIR__ . '/../../webscrapping/data.xlsx';
   /**
    * Loads paper information from the HTML and creates a XLSX file.
    * 
@@ -22,19 +30,23 @@ class Scrapper
    */
   public function scrap(DOMDocument $dom): void
   {
+    $authorMaxCount = 0;
     $nodeList = $this->getPapersNodeList($dom);
 
     $writer = WriterEntityFactory::createXLSXWriter();
-    $writer->openToFile('data.xlsx');
-    $writer->addRow($this->addHeader());
+    $writer->openToFile(self::tempDataFilePath);
 
     foreach ($nodeList as $node) {
       $paper = new PaperNode($node);
+
+      $authorMaxCount = count($paper->authors) > $authorMaxCount ? count($paper->authors) : $authorMaxCount;
 
       $writer->addRow($this->buildRow($paper));
     }
 
     $writer->close();
+
+    $this->addHeader($authorMaxCount);
   }
 
   /**
@@ -55,24 +67,41 @@ class Scrapper
    * 
    * @return Row A Row containing the header cells
    */
-  protected function addHeader(): Row
+  protected function addHeader($authorsCount)
   {
+    $headerArray = ['ID', 'Title', 'Type'];
+
+    for ($i = 0; $i < $authorsCount; $i++) {
+      $str = 'Author ' . ($i + 1);
+      array_push($headerArray, $str, $str . ' Institution');
+    }
+
     $style = (new StyleBuilder())
       ->setFontBold()
       ->build();
+    $headerRow = WriterEntityFactory::createRowFromArray($headerArray, $style);
 
-    return WriterEntityFactory::createRowFromArray([
-      'ID', 'Title', 'Type',
-      'Author 1', 'Author 1 Institution',
-      'Author 2', 'Author 2 Institution',
-      'Author 3', 'Author 3 Institution',
-      'Author 4', 'Author 4 Institution',
-      'Author 5', 'Author 5 Institution',
-      'Author 6', 'Author 6 Institution',
-      'Author 7', 'Author 7 Institution',
-      'Author 8', 'Author 8 Institution',
-      'Author 9', 'Author 9 Institution'
-    ], $style);
+    $writer = WriterEntityFactory::createXLSXWriter();
+    $writer->openToFile(self::dataFilePath);
+    $writer->addRow($headerRow);
+
+    $reader = ReaderEntityFactory::createXLSXReader();
+    $reader->open(self::tempDataFilePath);
+
+    foreach ($reader->getSheetIterator() as $key => $sheet) {
+      if ($key !== 1) {
+        $writer->addNewSheetAndMakeItCurrent();
+      }
+
+      foreach ($sheet->getRowIterator() as $row) {
+        $writer->addRow($row);
+      }
+    }
+
+    $reader->close();
+    $writer->close();
+
+    unlink(self::tempDataFilePath);
   }
 
   /**

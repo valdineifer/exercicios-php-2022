@@ -21,5 +21,7 @@ class Main
     $dom->loadHTMLFile(__DIR__ . '/../../webscrapping/origin.html', LIBXML_NOBLANKS);
 
     (new Scrapper())->scrap($dom);
+
+    print "\n===== Planilha 'data.xlsx' criada com sucesso na pasta '/webscrapping' =====\n";
   }
 }

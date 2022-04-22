@@ -36,9 +36,14 @@ class PaperNode
     $authorsArray = [];
 
     foreach ($authorsNodeList as $author) {
-      if ($author instanceof DOMElement) {
+      $sanitizedName = trim(str_replace(';', '', $author->nodeValue));
+
+      if (
+        $author instanceof DOMElement
+        && strlen($sanitizedName)
+      ) {
         array_push($authorsArray, [
-          'name' => trim(str_replace(';', '', $author->nodeValue)),
+          'name' => $sanitizedName,
           'institution' => $author->attributes->getNamedItem('title')->nodeValue
         ]);
       }
