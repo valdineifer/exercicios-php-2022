@@ -21,7 +21,6 @@ use DOMXPath;
  */
 class Scrapper
 {
-  const tempDataFilePath = __DIR__ . '/../../webscrapping/temp-data.xlsx';
   const dataFilePath = __DIR__ . '/../../webscrapping/data.xlsx';
   /**
    * Loads paper information from the HTML and creates a XLSX file.
@@ -52,9 +51,11 @@ class Scrapper
   }
 
   /**
-   * Return a list of paper nodes
+   * Return a papers node list
    * 
    * @param DOMDocument $dom The DOMDocument with HTML loaded
+   * 
+   * @return DOMNodeList
    */
   protected function getPapersNodeList(DOMDocument $dom): DOMNodeList
   {
@@ -67,9 +68,11 @@ class Scrapper
   /**
    * Build the header row
    * 
+   * @param int $authorsCount Indicates the maximum quantity of authors per row
+   * 
    * @return Row A Row containing the header cells
    */
-  protected function addHeader($authorsCount): Row
+  protected function addHeader(int $authorsCount): Row
   {
     $headerArray = ['ID', 'Title', 'Type'];
 
@@ -87,6 +90,8 @@ class Scrapper
 
   /**
    * Build row for one paper
+   * 
+   * @param PaperNode $paper A Paper instance with the necessary data to build a sheet row
    * 
    * @return Row A Row containing the paper informations
    */

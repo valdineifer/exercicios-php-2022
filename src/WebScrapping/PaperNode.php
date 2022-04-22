@@ -4,6 +4,9 @@ namespace Galoa\ExerciciosPhp2022\WebScrapping;
 
 use DOMElement;
 
+/**
+ * Used to extract and have the necessary data of a paper, to build the sheet.
+ */
 class PaperNode
 {
   private DOMElement $element;
@@ -12,6 +15,11 @@ class PaperNode
   public readonly string $type;
   public readonly array $authors;
 
+  /**
+   * Extract necessary data from the paper DOM Element
+   * 
+   * @param DOMElement $element The element of a paper
+   */
   public function __construct(DOMElement $element)
   {
     $this->element = $element;
@@ -22,6 +30,9 @@ class PaperNode
     $this->extractTypeAndId();
   }
 
+  /**
+   * Extracts 'type' and 'id' from a 'div' element on the paper section
+   */
   public function extractTypeAndId(): void
   {
     $divNode = $this->element->childNodes->item(2);
@@ -30,6 +41,9 @@ class PaperNode
     $this->id = $divNode->childNodes->item(1)->nodeValue;
   }
 
+  /**
+   * Extracts the paper 'authors' from the paper section
+   */
   private function extractAuthors(): void
   {
     $authorsNodeList = $this->element->childNodes->item(1)->childNodes;
