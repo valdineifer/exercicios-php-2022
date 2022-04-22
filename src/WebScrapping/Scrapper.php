@@ -34,19 +34,21 @@ class Scrapper
     $nodeList = $this->getPapersNodeList($dom);
 
     $writer = WriterEntityFactory::createXLSXWriter();
-    $writer->openToFile(self::tempDataFilePath);
+    $writer->openToFile(self::dataFilePath);
+    $rows = [];
 
     foreach ($nodeList as $node) {
       $paper = new PaperNode($node);
 
       $authorMaxCount = count($paper->authors) > $authorMaxCount ? count($paper->authors) : $authorMaxCount;
 
-      $writer->addRow($this->buildRow($paper));
+      $rows[] = $this->buildRow($paper);
     }
 
-    $writer->close();
+    $writer->addRow($this->addHeader($authorMaxCount));
+    $writer->addRows($rows);
 
-    $this->addHeader($authorMaxCount);
+    $writer->close();
   }
 
   /**
@@ -63,11 +65,11 @@ class Scrapper
   }
 
   /**
-   * Add a header to the XLSX file
+   * Build the header row
    * 
    * @return Row A Row containing the header cells
    */
-  protected function addHeader($authorsCount)
+  protected function addHeader($authorsCount): Row
   {
     $headerArray = ['ID', 'Title', 'Type'];
 
@@ -79,29 +81,8 @@ class Scrapper
     $style = (new StyleBuilder())
       ->setFontBold()
       ->build();
-    $headerRow = WriterEntityFactory::createRowFromArray($headerArray, $style);
 
-    $writer = WriterEntityFactory::createXLSXWriter();
-    $writer->openToFile(self::dataFilePath);
-    $writer->addRow($headerRow);
-
-    $reader = ReaderEntityFactory::createXLSXReader();
-    $reader->open(self::tempDataFilePath);
-
-    foreach ($reader->getSheetIterator() as $key => $sheet) {
-      if ($key !== 1) {
-        $writer->addNewSheetAndMakeItCurrent();
-      }
-
-      foreach ($sheet->getRowIterator() as $row) {
-        $writer->addRow($row);
-      }
-    }
-
-    $reader->close();
-    $writer->close();
-
-    unlink(self::tempDataFilePath);
+    return WriterEntityFactory::createRowFromArray($headerArray, $style);
   }
 
   /**
